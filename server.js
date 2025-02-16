@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import Fastify from 'fastify';
 config()
 import userRouter from './src/routes/user.js';
+import fastifyMongodb from "@fastify/mongodb";
 
 
 const fastify = new Fastify({
@@ -10,9 +11,20 @@ const fastify = new Fastify({
 
 fastify.register(userRouter);
 
+fastify.register(fastifyMongodb, {
+    forceClose: true,
+    url: process.env.DB_URL,
+}).after((err) => {
+    if (err) {
+        fastify.log.error('MongoDB connection failed:', err);
+    } else {
+        fastify.log.info('MongoDB connected successfully');
+    }
+});
+
 
 fastify.get("/", async (request, reply) => {
-    return { message: "Dwaipayan Biswas" };
+    return {message: "Dwaipayan Biswas"};
 });
 
 
